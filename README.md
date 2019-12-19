@@ -12,3 +12,7 @@ jekyll new .  # at the local repo root
 jekyll serve # to compile the website locally
 
 4. commit/push the auto-generated files
+
+5. Theme
+jekyll theme example is here https://github.com/jekyll/minima
+See README.md and _config.yml
