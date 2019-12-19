@@ -17,7 +17,7 @@ title: A lesson a day
 author: Dongyoung Kim
 email: romankim.dev@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  -
+  Trying out this blog to see if it can increase my background learning productivity.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 #twitter_username: jekyllrb
