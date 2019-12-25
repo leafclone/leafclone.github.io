@@ -1,0 +1,177 @@
+---
+layout: post
+title:  "Modern c++ design chapter 1 summary"
+date:   2019-12-20 15:58:00 +0900
+categories: jekyll update
+---
+1.1
+
+Goal : How to fight the combinatorial/multiplicative nature of software design.
+
+1.2
+
+Implementing a one-fits-all interface (a mammoth class) is a losing game
+- Users may end up using the interface syntatically correct, but semantically wrong
+- Loss of static type safety : This means that what's semantically wrong shouldn't even compile.
+
+1.4
+
+Downsides of using templates.
+- You cannot specialize the structure (the data members)
+- For classes that has >1 template parameters, you cannot specialize member functions w.r.t. those parameters
+These problems are solved if you use templates and inheritance together
+
+1.5
+
+*Policy* is a class interface that consists one or more of the following : inner type definitions, member functions, and member variables. *Policy classes* are implementations of a policy, and are units of design components.
+
+For example, if I say that there will be a family of classes that has a member functon `do` and a public data member `x_`. That is a policy.
+
+Each policy is a representation of a behavior. It is almost same as the Strategy pattern except that policies are compile time bound, and the unit of component is not represented as an object.
+
+{% highlight c++ %}
+// Policy class
+class PolicyImpl {
+  void do() { // do can be virtual, static, etc. if you wanted to. Policy does not put constraints on signatures
+    ...
+  }
+
+  int x_;
+};
+
+// Policy class with templates
+template <typename T>
+class PolicyImplT {
+  void do(T x) {
+    ...
+  }
+
+  T x_;
+};
+
+// library code
+template <
+  typename T,
+  class Policy,
+  template <class> PolicyT // use template template parameters. We'll see why.
+>
+class WidgetManager : public Policy, PolcityT<T> // inherit to get access to data members
+{
+};
+
+// user code
+typedef WidgetManager<Arg, PolicyImpl, PolicyImplT> MyWidgetManager;
+{% endhighlight %}
+
+Note that we don't specify the template parameter for PolicyImplT. Wouldn't it be extremely inconvenient/dangerous if we had to do this
+{% highlight c++ %}
+typedef WidgetManager<Arg, PolicyImpl, PolicyImplT<Arg>> MyWidgetManager;
+{% endhighlight %}
+We circumvented this by using template template
+
+One way to view your library class is to treat it as a code generation engine, policies are blocks of code you can use, and your app is configuration how code will be generated.
+
+1.6
+
+Enriched policies. You can create extra member functions in PolicyImpl. This means user apps have access to those functions through inheritance.
+
+1.7
+
+To use inheritance, you have to be mindful about destruction + polymorphism. Think of the following case
+
+{% highlight c++ %}
+Base *ptr = new Derived();
+delete ptr;
+{% endhighlight %}
+
+In c++, Base must define the destructor as virtual so the Derived destructor is called. In our context, remember that the library class is derived class and the policy is the base class. This means there's nothing preventing you from doing this
+
+
+{% highlight c++ %}
+typedef WidgetManager<Arg, PolicyImpl, PolicyImplT> MyWidgetManager;
+PolicyImplT<Arg>* ptr = new MyWidgetManager();
+delete ptr;
+{% endhighlight %}
+
+In c++, calling non-virtual base class destructors has undefined behavior. We don't want to increase the size of the object by creating a virtual table just for this edge case. To make the last line illegal, we can do this
+
+{% highlight c++ %}
+class PolicyImpl {
+  ...
+
+protected:
+  ~PolicyImpl() {}
+};
+{% endhighlight %}
+
+This way, user code cannot call the Base class's destructor. 
+
+1.8
+
+Powerful feature of c++. Class template is ... a *template*. Template for code. If a member function is not used, it does not even get "codegen'ed". It means you can do this.
+
+{% highlight c++ %}
+// Policy class
+class Policy {
+  void someExtraFn() {
+    ...
+  }
+}
+
+// library code
+template <
+  typename Policy
+>
+class WidgetManager : public Policy {
+  void doExtraStuff() {
+    Policy& obj = *this;
+    obj.someExtraFn();
+  }
+};
+{% endhighlight %}
+
+If usr code doesn't use `doExtraStuff`, the block of template code for `doExtraStuff` does not even get "codegen'ed". This means you can pass in policy impls that do not have `someExtraFn` as long as you do not call `doExtraStuff`.
+
+1.9
+
+Once you have your policies, a definition of a library class can be a simple typedef. 
+
+1.10
+
+You can specialize data members as well. You can create a policy that has member `x_`, and access the data member by getter and setter of that policy.
+
+1.11
+
+Compatibility. Rule of thumb in c++ : implicit conversions that increase restrictions (e.g. `const` to non-`const` types) are supported
+
+Consider the following minimal code.
+
+{% highlight c++ %}
+template <class Arg, template <class> class PolicyImplT>
+class WidgetManager : public PolicyImplT<Arg> {
+
+// note that copy constructor is templatized
+template <class ArgOther, template <class> class PolicyImplTOther
+WidgetManager(const WidgetManager<ArgOther, PolicyImplTOther>& other)
+  : member_(other.member_)
+  , PolicyImplT<Arg>(other)
+
+T member_;
+
+}
+{% endhighlight %}
+
+User will be able to instantiate `WidgetManager<Arg, PolicyImplT>` with 'WidgetManager<ArgOther, PolicyImplTOther>' if
+
+- `Arg` implements a copy constructor that accepts `ArgOther`
+- `PolicyImplT` implements a copy constructor that accepts `PolicyImplTOther`. This is because the library class derives from its policies
+
+1.12
+
+Design practices - which functionalities of the class should be factored out as policies?
+
+- Anything that can be done in more than one way
+- At an extreme, a host class of totally depleted of design decisions and constraints. Such a host class is merely a thin shell, only deleaing with assembling the policies into a coherent behavior
+- Policies should not know about each other. Try to decompose into policies that are orthogonal.
+
+"Design constraints buried in a class's design are as bad as magic constants buried in code"
