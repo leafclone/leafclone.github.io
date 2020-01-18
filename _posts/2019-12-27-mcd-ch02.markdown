@@ -1,0 +1,104 @@
+---
+layout: post
+title:  "Modern c++ design chapter 2 summary"
+date:   2019-12-27 19:28:00 +0900
+categories: jekyll update
+---
+
+Useful techniques mostly using template specialization and traits
+
+2.1
+
+Compile time asserter using *local class* and *ellipsis function*.
+
+{% highlight c++ %}
+template <bool> struct CompileTimeChecker
+{
+  CompileTimeChecker(...); // constructor is an ellipsis function. any parameter is valid
+}
+template<> struct CompileTimeChecker<false> {}; // just the default constructor for false
+
+#define STATIC_CHECK(expr, msg) \
+{\
+  class ERROR_##msg; \
+  (void)sizeof(CompileTimeChecker<expr>((ERROR_##msg()))) \
+}
+{% endhighlight %}
+
+The macro declares a local class `ERROR_##msg`, and passes its object to `CompileTimeChecker<bool>`. `CompileTimeChecker<true>`'s constructor can accept the object because it's an *ellipsis function*. 
+
+2.2
+
+When you instantiate a templatized class, the compiler does a *pattern matching* of existing partial and total specializations to find the best candidate.
+
+Partial template specialization does not apply to functions---be they member or nonmember. The alternative way is to use *overloading*, which means you only have specialization for function parameters.
+
+{% highlight c++ %}
+template <class T, typename U> T foo(U inp); // primary template
+template <class T> foo(int inp); // overloading. Note that this doesn't have anything to do with the template above
+{% endhighlight %}
+
+2.3
+
+Local classes cannot define static member variables, and cannot access nonstatic local variables
+
+2.4
+
+Simple type based on a compile-time constant integer
+
+
+{% highlight c++ %}
+template <int v>
+struct Int2Type
+{
+  enum {value = v};
+  // Also can be
+  // static constexpr int value = v;
+}
+{% endhighlight %}
+
+Since the value of `v` is "typified", This means you can call different overloaded functions based on `v`. Why not just use if-else? It's because branches of if-else might not compile simultaneously.
+
+2.5
+
+If you want to partially specialize a function's return type, here's a trick using overloading
+
+
+{% highlight c++ %}
+template <class T>
+struct Trait {
+  typedef T type;
+}
+template <class T, class U>
+T* create(U arg, Trait<T> /* unused. only for overloading */){
+  return new T(arg);
+}
+template <class U>
+Widget* create(U arg, Trait<Widget> /* unused */){
+  return new Widget(arg);
+}
+
+// user code
+String* s = create("Hello", Trait<String>());
+Widget* w = create(0, Trait<Widget>());
+{% endhighlight %}
+
+2.6
+
+Store polymoprhic types by pointers (because you have to, or else size of derived will be truncated), and nonpolymorphic types by value.
+
+Here's an example how to select types on demand by a bool flag
+
+{% highlight c++ %}
+template <bool b, typename A, typename B>
+struct Select {
+  typedef A type;
+};
+
+template <typename A, typename B>
+struct Select<true, A, B> {
+  typedef B type;
+};
+
+{% endhighlight %}
+
