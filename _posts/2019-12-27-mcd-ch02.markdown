@@ -102,3 +102,73 @@ struct Select<true, A, B> {
 
 {% endhighlight %}
 
+2.7
+
+Problem: how to detect convertability (and inheritance) at compile time so that you don't have to use `dynamic_cast` in runtime.
+
+Let's create a program that detects whether type `T` can be converted into `U`.
+
+`sizeof` keyword has the ability to return the size of any C++ expression without actually evaluating it. i.e. it has the complete facility for deducing the type of an expression.
+
+Consider two classes that we only care about is that they have different sizes
+
+{% highlight c++ %}
+typedef char Small;
+class Big { char _[2]; }
+{% endhighlight %}
+
+Let's create two overloads 
+
+{% highlight c++ %}
+Small func(U);
+//template <class T> func(T); // We can't do this. See below.
+// We can't use templates because the matching rule of function calls have the following priority
+// Strict match > template > implicit conversion > everything else > elipsis
+Big func(...);
+// passing an objection to a function with ellipses has undefined results, but this is fine because we will never evaluate the function
+// Note that the definition is not even implemented
+{% endhighlight %}
+
+We can package this into a library code, that uses class templatization.
+
+{% highlight c++ %}
+// library code
+template <class T, class U>
+class IsConvertible {
+  typedef char Small;
+  class Big { char _[2] };
+  
+  // some unimplemented function since constructor T() can be private
+  static const T* makeT();
+  
+  // not implemented
+  Small func(const U*);
+  Big func(const T*);
+  
+public:
+  enum { value = sizeof(func(makeT())) == sizeof(Small) };
+}
+
+// user code
+IsConvertible
+{% endhighlight %}
+
+Few details:
+We use const pointer because there are only three cases in which `const T*` converts implicitly to `const U*`
+- T is the same type as U
+- T is an unambiguous public base of U
+- T is void
+
+Also, we don't want the conversion tests fail due to `const` issues
+
+2.8
+
+Basic information on `type_info` which I skipped
+
+2.9
+
+Skipped
+
+2.10
+
+
