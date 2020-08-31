@@ -26,7 +26,9 @@ brew install vim
 
 This broke some dependencies, so I had to run gem install jekyll again
 
-gem install --user-install jekyll
+gem install --user-install jekyll bundler
+
+The Gemfile became incompatible so I had to do a new `jekyll new`
 
 Finally, I added mathjax following instructions here
 http://sgeos.github.io/github/jekyll/2016/08/21/adding_mathjax_to_a_jekyll_github_pages_blog.html
