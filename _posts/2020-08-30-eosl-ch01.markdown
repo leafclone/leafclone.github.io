@@ -1,0 +1,69 @@
+---
+layout: post
+mathjax: true
+title:  "Elements of Statistical Learning chapter 2"
+date:   2020-08-30 21:52:07 -0500
+categories: jekyll update
+---
+{% include mathjax.html %}
+
+### Chater 1 : Intro
+
+* Definitions
+  * feature measurements
+  * outcome measurements
+    * quantitative (continuous)
+    * qualitative (categorical or discrete variables, also a.k.a. factors)
+      * nominal
+      * ordinal
+  * learner : a prediction model
+  * supervised learning : outcome variable is present
+  * unsupervised learning : only features are present. Goal is to describe how data are organized or clustered
+  * classification problems : when outcome is categorial
+  * regression problems : when outcome is quantitative
+
+Chapters 1-4 should be read in sequence. Chapter 7 is mandatory. Rest of the chapters can be sampled.
+
+### Chapter 2 : Overview of Supervised Learning
+
+* Definitions
+  * inputs (machine learning) := predictors (statistical literature) := independent variables (classic literature) := features (pattern recognition literature)
+  * outputs (machine learning) := responses (pattern recognition literature) := dependent variables (classic literature)
+* Notations
+  * General reference to variables
+    * Input variable : $X$, either scalar or vector
+    * Output variable : $Y$ if quantitative, or $G$ if qualitative
+  * Component of vector $V$: $V_j$
+  * Matrix : $\mathbf{X}$
+  * an observation of $X$ : $x_i$, either scalar or vector
+  * all observations on variable $X_j$ : $\mathbf{x_j}$
+
+#### Linear Regression
+
+How do we predict?
+
+$$
+\hat{Y} = X^{T}\beta
+$$
+
+How do we fit?
+
+Popular method - Least squares: minimize residual sum of squares
+
+$$ \text{RSS}(\beta) = \sum_{i=1}^{N} (y_i - x_i^T\beta)^2 $$
+
+Or rewriting in matrix form
+
+$$ \text{RSS}(\beta) = (\mathbf{y} - \mathbf{X}\beta)^T(\mathbf{y} - \mathbf{X}\beta) $$
+
+It's quadratic so the minimum always exists. Thus, we can differentiate w.r.t. $\beta$, we get the _normal equation_ (i.e. closed form analytical solution to linear regression model with least squarescost function)
+
+$$
+\mathbf{X}^T(y-\mathbf{X}\beta) = 0
+$$
+
+References
+* [Matrix differentiation][matrix-calculation] 
+
+[matrix-calculation]: {{ site.baseurl }}/pdfs/MatrixCalculus.pdf
+
