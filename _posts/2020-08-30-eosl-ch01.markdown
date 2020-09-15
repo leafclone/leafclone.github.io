@@ -38,7 +38,7 @@ Chapters 1-4 should be read in sequence. Chapter 7 is mandatory. Rest of the cha
   * an observation of $X$ : $x_i$, either scalar or vector
   * all observations on variable $X_j$ : $\mathbf{x_j}$
 
-#### Linear Regression
+#### Linear Regression (2.3.1)
 
 How do we predict?
 
@@ -62,8 +62,120 @@ $$
 \mathbf{X}^T(y-\mathbf{X}\beta) = 0
 $$
 
+If $\mathbf{X}^T\mathbf{X}$ is nonsingular (i.e. usually with $n > p$, columns must be independent), the unique solution is
+
+$$
+\hat{\beta} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}
+$$
+
+Note that the entire fitted surface is characterized by the $p$ parameters of $\hat{\beta}$
+
+#### Linear Classification (2.3.1)
+
+You can apply linear models to classification. For binary classification, $Y$ can be coded into 0 or 1, and the decision boundary can be {$x: x^T\hat{\beta}$=0.5}. Note that for $x^T\hat{\beta}=0$, the boundary is a hyperplane (a subspace whose dimension is one less than its ambient space), going through the origin and orthogonal to $\hat{\beta}$. And $x^T\hat{\beta}=c$ is such hyperplane shifting parallel by $\frac{c}{\hat{\lVert\beta\rVert}}$. This makes sense because $x$ would be vectors such that the inner product along the direction and magnitude of $\hat{\beta}$ would equal $c$.
+
+#### Two example sets of data with different characteristics
+
+Let's say the context is binary classification with two classes, BLUE and ORANGE. Consider two different ways to sample the data.
+
+1. Scenario 1: BLUE is sampled from bivariate gaussian $N(\mu_{BLUE}, c_{BLUE}I)$, and ORANGE is sampled from $N(\mu_{ORANGE}, c_{ORANGE}I)$. Note that covariances are zero.
+2. Scenario 2: BLUE is sampled from a mixture of 10 gaussians. ORANGE is also sampled from a mixture of 10 gaussians, but from that characterized with a different parameter.
+
+One way to describe mixture of Gaussians is to describe it as a generative model. First, generate a discrete variable that chooses which Gaussian to use (out of 10). Then, sample the data from the chosen Gaussian.
+
+For Scenario 1, i.e. one Gaussian per class, linear decision boundary is optimal. We will show this in chapter 4. For Gaussian mixture model, a lienar boundary is not optimal. Instead, the optimal boundary should be nonlinear and disjoint.
+
+#### Nearest neighbor models (2.3.2)
+
+Both prediction and the fit for k-nearest neighbor model is defined as
+
+$$
+\hat{Y}(x) = \frac{1}{k}\sum_{x_i\in N_k(x)}y_i
+$$
+
+where $N_k(x)$ is the neighborhood of $x$ defined by the $k$ closest points in $x_i$ in the training set. "Closeness" implies a metric, which we'll just use the euclidean distance for now. 
+
+Note that although this model appears to have a single parameter, $k$, the _effective_ number of parameters is $N/k$.
+
+#### Linear least squares vs Nearest neighbors
+
+We can view the two models as two extremes on the spectrum. 
+
+* Linear model
+  * Yields smooth, stable fits.
+  * Relies heavily on the assumption that a linear model is appropriate.
+  * Has low variance, and high bias.
+  * More appropriate for Scenario 1
+* Nearest neighbors
+  * No assumptions about the underlying data, and can adapt to any situation.
+  * Fits are unstable because each fitted parameter depends on a handful of input points.
+  * High variance and low bias. 
+  * More appropriate for Scenario 2
+
+Most popular techniques today are variants of these two simple procedures. In fact 1-nearest-neighbor, the simplest of all, captures a large percentage of the market share for low-dimensional problems.
+
+#### Statistical Decision Theory (2.4)
+
+This section is theoretical, and provides framework for developing models such as those discussed informally so far.
+
+Let's think in terms of random variables and probability places. Let's first look at the quantitative case. This theory requires a _loss function_, and let's first look at the _squared error_ loss, i.e., $L(Y,f(X)) = (Y-f(X))^2$. The _expected prediction error_, computed with our choice of loss function, is 
+
+$$
+\begin{align}
+EPE(f) &= E_{X,Y}[(Y-f(X))^2] \\
+&= \int\int [y-f(x)]^2 Pr(x, y) dxdy \\
+\end{align}
+$$
+
+Using $Pr(X,Y)=Pr(Y\lvert X)Pr(X)$,
+
+$$
+\begin{align}
+EPE(f) &= \int\int [y-f(x)]^2 Pr(y\lvert X=x)Pr(x) dxdy \\
+\end{align}
+$$
+
+Changing the order of summation, and factoring $Pr(x)dx$ out,
+
+$$
+\begin{align}
+EPE(f) &= \int\int [y-f(x)]^2 Pr(y\lvert X=x)dyPr(x)dx \\
+&= E_XE_{Y\lvert X}[(Y-f(X)^2\lvert X] \\
+\end{align}
+$$
+
+And we can see that we can minimize the whole thing by minimize the inner loop for each given $x$, i.e. minimize EPE _pointwise_.
+
+Since $E[(V-v)^2] = E[V^2] - 2vE[V] + v^2$ is minimized via $v=E[V]$ (take the derivative of $v$ on the RHS. FWIW, the minimum value becomes the $Var(V)$)
+
+The solution is 
+
+$$
+f(x) = E(Y\lvert X=x)
+$$
+
+And FWIW, the EPE(f) becomes
+
+$$
+EPE(f) = E_X[Var(Y\lvert X)]
+$$
+
+which is the "unexplained" variance from _law of total variance_ below. (First term is unexplained variance, and second term is explained variance)
+
+$$
+Var(Y) = E_X[Var[Y\lvert X]] + Var_X[E[Y\lvert X]]
+$$
+
+In any case, our solution for $f(x)$ is called the _regression_ function.
+
+
+
+
+
 References
 * [Matrix differentiation][matrix-calculation] 
+* [Intuition behind law of total variance][law-of-total-variance]
 
 [matrix-calculation]: {{ site.baseurl }}/pdfs/MatrixCalculus.pdf
+[law-of-total-variance]: https://math.stackexchange.com/questions/1742578/law-of-total-variance-intuition
 

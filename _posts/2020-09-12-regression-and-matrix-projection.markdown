@@ -7,11 +7,11 @@ categories: jekyll update
 ---
 {% include mathjax.html %}
 
-Let's view the data $\mathbf{X}_{N\times p}$ as a $p$-dimensional plane in in $\mathbb{R}^N$, i.e. a subspace spanned by $p$ basis vectors.
+One way to view the data $\mathbf{X}_{N\times p}$ as a $p$-dimensional plane in in $\mathbb{R}^N$, i.e. a subspace spanned by $p$ basis vectors.
 
-$\mathbf{X}\beta=\mathbf{y}$ may (likely) not have a solution, so we instead project $\mathbf{y}$ onto the subspace described above and get $\mathbf{X}\hat{\beta}=\hat{\mathbf{y}}$.
+In such context, $\hat{\mathbf{y}}$ is the projection on the plane. This has two implications. $\hat{\mathbf{y}}$ is the linear combination of the basis vectors $\mathbf{x_1},..,\mathbf{x_p}$, and $\hat{\mathbf{y}}$ is the closest point on the plane to $\mathbf{y}$, in a euclidean distance sense. This means norm of $\mathbf{e}$ is minimized where $\mathbf{e} = \mathbf{y}-\hat{\mathbf{y}}$, which minimizes the least squares.
 
-Why project? Because $\hat{\mathbf{y}}$ is the closest vector on the subspace in terms of euclidiean distance, which means norm of $\mathbf{e}$ is minimized where $\mathbf{e} = \mathbf{y}-\hat{\mathbf{y}}$, which minimizes the least squares.
+Outside of the regression context, why do people use projections in general? $\mathbf{X}\beta=\mathbf{y}$ may (likely) not have a solution, so we instead project $\mathbf{y}$ onto the subspace described above and solve $\mathbf{X}\hat{\beta}=\hat{\mathbf{y}}$.
 
 $\mathbf{e}$ is orthogonal to the plane (by definition of projection, i think), and hence 
 
