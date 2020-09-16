@@ -144,7 +144,7 @@ EPE(f) &= \int\int [y-f(x)]^2 Pr(y\lvert X=x)dyPr(x)dx \\
 \end{align}
 $$
 
-And we can see that we can minimize the whole thing by minimize the inner loop for each given $x$, i.e. minimize EPE _pointwise_.
+(Note that I just applied the reverse of law of total expectation) And we can see that we can minimize the whole thing by minimize the inner loop for each given $x$, i.e. minimize EPE _pointwise_.
 
 Since $E[(V-v)^2] = E[V^2] - 2vE[V] + v^2$ is minimized via $v=E[V]$ (take the derivative of $v$ on the RHS. FWIW, the minimum value becomes the $Var(V)$)
 
@@ -160,16 +160,30 @@ $$
 EPE(f) = E_X[Var(Y\lvert X)]
 $$
 
-which is the "unexplained" variance from _law of total variance_ below. (First term is unexplained variance, and second term is explained variance)
+which is the "unexplained" variance from _law of total variance_ below. (First term is unexplained variance, and second term is explained variance). Note that the randomness comes thru $X$. Expection of $Y$ is constant (i.e. not random) given $X$. Viewing  $E[Y\lvert X]$ as a random variable, $E_{X,Y}[E[Y\lvert X]]=E_{X}[E[Y\lvert X]]$.
 
 $$
 Var(Y) = E_X[Var[Y\lvert X]] + Var_X[E[Y\lvert X]]
 $$
 
-In any case, our solution for $f(x)$ is called the _regression_ function.
+In any case, our solution for $f(x)$ is called the _regression_ function. This is theoretically the best estimation of $Y$ given $X=x$, when the metric is squared error.
 
+The nearest-neighbor method approximates the regression function with
 
+$$
+\hat{f}(x) = Avg(y_i | x_i \in N_k(x))
+$$
 
+Two approximations are happening here
+* Expectation is approximated by averaging over sample data
+* Conditioning is relaxed to conditioning over some region "close" to the target point $x$
+
+Intuition: if $N$ is big, then it's likely to have more samples around your point $x$. Also, with larger $k$, the average will be more stable. Stating without proof, $\hat{f}(x) \to E[Y \lvert X=x]$ as $N,k \to \infty$ such that $k/N \to 0$.
+
+Next question: if we have universal approximator, why even bother looking further? Few reasons
+* Often we don't have that many samples
+* Linear or more structured models can give you even more stable estimates, but you have to first make sure such models are more appropriate. You can learn such knowledge from the data.
+* When the dimension $p$ gets large, so does the metric size of the nearest neighborhood. The convergence above holds, but the _rate_ of the convergence will decrease as dimension increase.
 
 
 References
