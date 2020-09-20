@@ -186,8 +186,9 @@ Next question: if we have universal approximator, why even bother looking furthe
 * When the dimension $p$ gets large, so does the metric size of the nearest neighborhood. The convergence above holds, but the _rate_ of the convergence will decrease as dimension increase.
 
 What approximations are happening for linear models?
-* It just subsets your function space by $\beta^T x$, parameterized by $\beta$. Softly speaking, you assume that the true relationship is linear.
+* It just subsets your function space by $\beta^T x$, parameterized by $\beta$. Softly speaking, you assume that the true relationship is linear. (This is called _model-based approach_)
 * So to find optimal $\hat{f}$, you can only optimize through $\beta$
+* Further, if we are using least squares, we approximate the expectation (in the math below) with average
 
 $$
 \begin{align}
@@ -196,7 +197,8 @@ EPE(f) &= EPE(\vec\beta) & & \text{I'll make it explicit that beta is a vector w
 &= E_{\vec x,y}[(y - \vec x^T \vec\beta)^2] & & \text{$x$ is just a random vector, so let's use vector notations for convenience} \\
 \end{align}
 $$
- remember, matrix differentiation is just an invented/promised notation so that the result will be the Jacobian matrix of the element-wise differentiation 
+
+remember, matrix differentiation is just an invented/promised notation so that the result will be the Jacobian matrix of the element-wise differentiation 
 
 $$
 \begin{align}
@@ -210,6 +212,30 @@ $$
 
 Note that since we took a vector differentiation (pointwise differentiation for each $\beta_i$, the output is also element-wise matrix of expectation (in case a matrix in side an expectation is confusing).
 
+Even though k-nearest neighbors and linear least squares are approximating conditional expectations with averages, there are key differences in model assumptions. 
+* Linear least squares assumes that true $f(x)$ is well approximated by a globally linear function
+* k-nearest neighbors assumes $f(x)$ is well approximated by a locally constant function
+
+A lot of the techniques in this book will be model-based. This means we will impose model assumptions, which can replace conditional expectation in the final derived solution (For example, our solution for $\hat{\beta}$ no longer involves conditioning on X). 
+
+What if we use $L_1$ loss function instead of $L_2$? The solution, stating without proof, is the conditional median
+
+
+$$
+\hat{f}(x) = median(Y\lvert X=x)
+$$
+
+Median is a different measure of _location_ (i.e. typical or central value that best describes data), and its estimates are more robust than the condtiional mean. However, $L_1$ criteria has discontinuities in their derivatives, so $L_2$ is more analytically convenient and widely used.
+
+The same paradigm works for qualitative case. The most often used loss function is the _zero-one_ loss function. Denoting the categorial output variable as $G$, the solution becomes
+
+$$
+\hat{G}(x) = max_{g \in G} Pr(g \lvert X = x)
+$$
+
+This is known as the _Bayes classifier_, which says we classify to the most probable class using $Pr(G\lvert X)$. The error rate of the Bayes classifier is called the _Bayes rate_. If the distribution $Pr(G\lvert X)$ is known, then the classifier / decision boundary can be calculated exactly.
+
+The most popular way of encoding a $K$-level qualitative variable is to use a one-hot vector of length $K$, known as the _dummy variable_. Under the one-hot scheme, and assuming we are dealing more than simple binary classification, output $Y$ is now a vector. Since $Y_k=1$ given $G=\mathcal{G}_k$, it follows that $E[Y_k \lvert X] = Pr(G = \mathcal{G}_k \lvert X)$. That means if we classify $G$ with $G_k$ where $k$ is the coordinate with the largest value $Y_k$ within the vector, the dummy variable + regression paradigm gives exactly the same output as the Bayes classifier.
 
 References
 * [Matrix differentiation][matrix-calculation] 
