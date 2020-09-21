@@ -237,6 +237,105 @@ This is known as the _Bayes classifier_, which says we classify to the most prob
 
 The most popular way of encoding a $K$-level qualitative variable is to use a one-hot vector of length $K$, known as the _dummy variable_. Under the one-hot scheme, and assuming we are dealing more than simple binary classification, output $Y$ is now a vector. Since $Y_k=1$ given $G=\mathcal{G}_k$, it follows that $E[Y_k \lvert X] = Pr(G = \mathcal{G}_k \lvert X)$. That means if we classify $G$ with $G_k$ where $k$ is the coordinate with the largest value $Y_k$ within the vector, the dummy variable + regression paradigm gives exactly the same output as the Bayes classifier.
 
+#### Local methods in high dimensions (2.5)
+
+##### Curse of dimensionality
+
+Local methods ($k$-nearest neighbors is an example of local method) suffer from the curse of dimensionality
+* Imagine samples are distributed in $p$-dimensional unit hypercube. Taking $p=10$ dimension, $0.8^{10}=0.1$, i.e., you must cover 80% of the range of input variable to capture 10% of the data to form a local average. Such neighborhoods are no longer local.
+* Imagine samples are distributed in $p$-dimensional unit ball. At the origin, the median distance from the origin to closest data point becomes farther as $p$ increases. That means more data points are closer to the boundary of the sample space than to any other point. The reason this presents a problem is that prediction is more difficult near the edges of the training sample. One must extrapolate from neighboring sample points rather than interpolate between them.
+
+Generally, you can think that the density of the samples (i.e. sampling density) is proportional to $N^{1/p}$. That means if you have $p=1$ and $N=100$ for a single input problem, you need $N=100^{10}$ samples if you want to achieve the same density with $p=10$. Therefore, in high dimension, all realistic/feasible real world datasets populate the input space sparsely.
+
+##### Bias-variance decomposition
+
+Bias-variance decomposition is a decomposition of the mean squared error _given a specific input point $x$_. (i.e. $MSE$ is a function of $x$. We're evaluating this pointwise as we did above!). We'll say there's a true deterministic function $y=f(x)$. We abbreviate $f(x)=f$. $\mathcal{T}$ denotes the training set.
+
+$$
+\begin{align}
+MSE(x) &= E_{\mathcal{T}}[(\underbrace{y}_{\text{function of $x$}}-\underbrace{\hat{y}^2}_{\text{the fitted predictor is function of $\mathcal{T}$, and the prediction is function of $x$}}]  \\
+&= E_{\mathcal{T}} [ (f-\hat{y})^2 ] \\
+&= E_{\mathcal{T}} [ f^2 - 2f\hat{y} + \hat{y}^2 ] \\
+&= f^2 - 2f E_{\mathcal{T}} [ \hat{y}^2 ] + E_{\mathcal{T}}[\hat{y}^2] \;\;\; \text{we already said $x$ is an input, and that $f(x)$ is deterministic. } \\
+&= f^2 - 2f E_{\mathcal{T}} [ \hat{y}^2 ] + \underbrace{E_{\mathcal{T}}[\hat{y}^2] - (E_{\mathcal{T}}[\hat{y}])^2}_{Var_{\mathcal{T}}(\hat{y})} + (E_{\mathcal{T}}[\hat{y}])^2\\
+&= Var_{\mathcal{T}}(\hat{y}) + (E_{\mathcal{T}}[\hat{y}]-f)^2 \;\;\; \text{trivial from above} \\
+&= Var_{\mathcal{T}}(\hat{y}) + Bias^2(\hat{y}) \;\;\;
+\end{align}
+$$
+
+$Var_{\mathcal{T}}$ comes from the sampling variance and how sensitive your fits are to it.
+
+Let's set up a new context where
+* True relationship between $X$ and $Y$ is linear with an error $Y= X^T\beta + \epsilon$, and $\epsilon \sim N(0, \sigma^2)$
+* We decide to fit the model by least squares
+
+Let's redo the math for $EPE(x)$. I'm going to omit square brackets for expectation
+
+$$
+\begin{align}
+EPE(x) &= E(y-\hat{y})^2 \\
+& \text{First start with a general $E$, which means we intend to sum over all random variables the expression contains}\\
+& \text{but at the moment we do not have the need to specify the specific distribution or the random variable that}\\
+& \text{causes the randomness}\\
+&= E(y^2 - 2y\hat{y} + \hat{y}^2)\\
+&= E(y^2 - 2y\hat{y} + \underbrace{\hat{y}^2 - (E\hat{y})^2}_{Var(\hat{y})} + (E\hat{y})^2)\\
+& \text{Best trick in math : add and subtract the same thing}\\
+&= E(y^2 -2y\hat{y} + (E\hat{y})^2) + Var(\hat{y})\\
+& \text{Note that $Var(\hat{y})$ is a constant expression. so we can pull out from the expectation.}\\
+&= Ey^2 - \underbrace{2E_{Y\lvert X}E_{\mathcal{T}}y\hat{y}}_{\text{$\hat{y}$ depends on the fit, which depends on $\mathcal{T}$. $y$ depends on $x$, but $x$ is given in LHS, so we should use $Y \vert X$.}} + (E\hat{y})^2 + Var(\hat{y})\\
+& \text{Note that we just expanded $E$ into a "nested for loop"}\\
+&= Ey^2 - 2E_{Y\lvert X}yE_{\mathcal{T}}\hat{y} + (E\hat{y})^2 + Var(\hat{y})\\
+& \text{since $y$ doesn't depend on $\mathcal{T}$, we can pull it out to the outer expectation} \\
+&= Ey^2 - (Ey)^2 + (Ey)^2 - 2E_{Y\lvert X}yE_{\mathcal{T}}\hat{y} + (E\hat{y})^2 + Var(\hat{y})\\
+& \text{Best trick in math : add and subtract the same thing} \\
+&= Var(y) + (Ey-E\hat{y})^2 + Var(\hat{y}) \\
+&= \underbrace{Var_{Y \lvert x}(y)}_{\text{$x$ is given, and $y$ depends on $x$, so we should use $Y \lvert X$}} + Bias(\hat{y})^2 + Var(\hat{y}) \\
+&= Var_{Y \lvert X}(y) + Var(\hat{y}) \\
+& \text{We are just going to use without proof that the estimates are going to be unbiased}\\
+&= \sigma^2 + E_{\mathcal{T}}x^T(\mathbf{X}^T\mathbf{X})^{-1}x\sigma^2\\
+& \text{First term follows from $y=x^T \beta + \epsilon$. We'll see how second term was derived in Chapter 3}.\\
+\end{align}
+$$
+
+We now know what $EPE(x)$ is. Then what is $E[EPE]$, which is $E_{x}[EPE(x)]$? First, we have to remind ourselves that _trace_ is a useful tool analyzing the distribution of quadratic forms.
+
+Lemma: let $x$ a random vector. Then
+
+$$
+\begin{align}
+E[x^T A x] &= tr(E[x^T A x])   \\
+& \text{since quadratic form is a scalar quantltiy, LHS and RHS is a scalar}\\
+&= E[tr(x^T A x)] \\
+& \text{Trace is a linear operator because it's a linear combination of components of the matrix.}\\
+& \text{Expectation is also a linear operator, this allows us to interchange the order of trace and expectation}\\
+&= E[tr(A x x^T)] \\
+& \text{this uses the cyclic property of trace}\\
+&= tr(A E[x x^T])\\
+&= tr(A ( Cov(x) + E[x]E[x^T] ))\\
+& \text{This just follows from the standard properties of variance and covariance}\\
+&= tr(A Cov(x)) + E[x^T] A E[x] ))\\
+& \text{applying the cyclic property one more time}\\
+\end{align}
+$$
+
+For convenience, let's say $E[x]=0$, (i.e. $x$ is centered). Then, the final expected $EPE$ becomes
+
+$$
+\begin{align}
+E[EPE] &= E_{x}{EPE(x)}\\
+&= E_{x}[\sigma^2 + E_{\mathcal{T}}x^T(\mathbf{X}^T\mathbf{X})^{-1}x\sigma^2]\\
+& \sim \sigma^2 + E_{x} [ x^T Cov(X)^{-1} x \sigma^2 / N] \\
+& \text{Using $\mathcal{T}^T \mathcal{T} \to Cov(X) / N$ with large $N$ }\\
+&= \sigma^2 + tr(Cov(X)^{-1} Cov(x)) \sigma^2 / N\\
+& \text{Using $E[x]=0$ and the Lemma above}\\
+&= \sigma^2 + p \sigma^2 / N\\
+\end{align}
+$$
+
+We have shown that in this context, expected $EPE$ increases linearly as a function of $p$. Wait, why does error increase with $p$? Isn't there supposed to be a sweet spot for $p$? Should we just use $p=1$ all the time?
+
+No, since for this contrived example, $p$ also affects the _true_ function $y=x^T\beta$, and we use the same $p$ for true function as well as modeling. Note in our previous analysis, curse of dimensionality makes the error increase exponentially with $p$. With the rigid lienar model, it only increases linearly. 
+
 References
 * [Matrix differentiation][matrix-calculation] 
 * [Intuition behind law of total variance][law-of-total-variance]
