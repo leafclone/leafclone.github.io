@@ -7,7 +7,7 @@ categories: jekyll update
 ---
 {% include mathjax.html %}
 
-### Chater 1 : Intro
+## Chater 1 : Intro
 
 * Definitions
   * feature measurements
@@ -24,7 +24,7 @@ categories: jekyll update
 
 Chapters 1-4 should be read in sequence. Chapter 7 is mandatory. Rest of the chapters can be sampled.
 
-### Chapter 2 : Overview of Supervised Learning
+## Chapter 2 : Overview of Supervised Learning
 
 * Definitions
   * inputs (machine learning) := predictors (statistical literature) := independent variables (classic literature) := features (pattern recognition literature)
@@ -38,7 +38,7 @@ Chapters 1-4 should be read in sequence. Chapter 7 is mandatory. Rest of the cha
   * an observation of $X$ : $x_i$, either scalar or vector
   * all observations on variable $X_j$ : $\mathbf{x_j}$
 
-#### Linear Regression (2.3.1)
+### Linear Regression (2.3.1)
 
 How do we predict?
 
@@ -70,11 +70,11 @@ $$
 
 Note that the entire fitted surface is characterized by the $p$ parameters of $\hat{\beta}$
 
-#### Linear Classification (2.3.1)
+### Linear Classification (2.3.1)
 
 You can apply linear models to classification. For binary classification, $Y$ can be coded into 0 or 1, and the decision boundary can be {$x: x^T\hat{\beta}$=0.5}. Note that for $x^T\hat{\beta}=0$, the boundary is a hyperplane (a subspace whose dimension is one less than its ambient space), going through the origin and orthogonal to $\hat{\beta}$. And $x^T\hat{\beta}=c$ is such hyperplane shifting parallel by $\frac{c}{\hat{\lVert\beta\rVert}}$. This makes sense because $x$ would be vectors such that the inner product along the direction and magnitude of $\hat{\beta}$ would equal $c$.
 
-#### Two example sets of data with different characteristics
+### Two example sets of data with different characteristics
 
 Let's say the context is binary classification with two classes, BLUE and ORANGE. Consider two different ways to sample the data.
 
@@ -85,7 +85,7 @@ One way to describe mixture of Gaussians is to describe it as a generative model
 
 For Scenario 1, i.e. one Gaussian per class, linear decision boundary is optimal. We will show this in chapter 4. For Gaussian mixture model, a lienar boundary is not optimal. Instead, the optimal boundary should be nonlinear and disjoint.
 
-#### Nearest neighbor models (2.3.2)
+### Nearest neighbor models (2.3.2)
 
 Both prediction and the fit for k-nearest neighbor model is defined as
 
@@ -97,7 +97,7 @@ where $N_k(x)$ is the neighborhood of $x$ defined by the $k$ closest points in $
 
 Note that although this model appears to have a single parameter, $k$, the _effective_ number of parameters is $N/k$.
 
-#### Linear least squares vs Nearest neighbors
+### Linear least squares vs Nearest neighbors
 
 We can view the two models as two extremes on the spectrum. 
 
@@ -114,7 +114,7 @@ We can view the two models as two extremes on the spectrum.
 
 Most popular techniques today are variants of these two simple procedures. In fact 1-nearest-neighbor, the simplest of all, captures a large percentage of the market share for low-dimensional problems.
 
-#### Statistical Decision Theory (2.4)
+### Statistical Decision Theory (2.4)
 
 This section is theoretical, and provides framework for developing models such as those discussed informally so far.
 
@@ -154,7 +154,7 @@ $$
 f(x) = E(Y\lvert X=x)
 $$
 
-And FWIW, the EPE(f) becomes
+And FWIW, it naturally follows that the EPE(f) becomes
 
 $$
 EPE(f) = E_X[Var(Y\lvert X)]
@@ -237,9 +237,9 @@ This is known as the _Bayes classifier_, which says we classify to the most prob
 
 The most popular way of encoding a $K$-level qualitative variable is to use a one-hot vector of length $K$, known as the _dummy variable_. Under the one-hot scheme, and assuming we are dealing more than simple binary classification, output $Y$ is now a vector. Since $Y_k=1$ given $G=\mathcal{G}_k$, it follows that $E[Y_k \lvert X] = Pr(G = \mathcal{G}_k \lvert X)$. That means if we classify $G$ with $G_k$ where $k$ is the coordinate with the largest value $Y_k$ within the vector, the dummy variable + regression paradigm gives exactly the same output as the Bayes classifier.
 
-#### Local methods in high dimensions (2.5)
+### Local methods in high dimensions (2.5)
 
-##### Curse of dimensionality
+#### Curse of dimensionality
 
 Local methods ($k$-nearest neighbors is an example of local method) suffer from the curse of dimensionality
 * Imagine samples are distributed in $p$-dimensional unit hypercube. Taking $p=10$ dimension, $0.8^{10}=0.1$, i.e., you must cover 80% of the range of input variable to capture 10% of the data to form a local average. Such neighborhoods are no longer local.
@@ -247,7 +247,7 @@ Local methods ($k$-nearest neighbors is an example of local method) suffer from 
 
 Generally, you can think that the density of the samples (i.e. sampling density) is proportional to $N^{1/p}$. That means if you have $p=1$ and $N=100$ for a single input problem, you need $N=100^{10}$ samples if you want to achieve the same density with $p=10$. Therefore, in high dimension, all realistic/feasible real world datasets populate the input space sparsely.
 
-##### Bias-variance decomposition
+#### Bias-variance decomposition
 
 Bias-variance decomposition is a decomposition of the mean squared error _given a specific input point $x$_. (i.e. $MSE$ is a function of $x$. We're evaluating this pointwise as we did above!). We'll say there's a true deterministic function $y=f(x)$. We abbreviate $f(x)=f$. $\mathcal{T}$ denotes the training set.
 
@@ -291,7 +291,7 @@ EPE(x) &= E(y-\hat{y})^2 \\
 &= Var(y) + (Ey-E\hat{y})^2 + Var(\hat{y}) \\
 &= \underbrace{Var_{Y \lvert x}(y)}_{\text{$x$ is given, and $y$ depends on $x$, so we should use $Y \lvert X$}} + Bias(\hat{y})^2 + Var(\hat{y}) \\
 &= Var_{Y \lvert X}(y) + Var(\hat{y}) \\
-& \text{We are just going to use without proof that the estimates are going to be unbiased}\\
+& \text{We are just going to use without proof that the estimates are going to be unbiased for this setup}\\
 &= \sigma^2 + E_{\mathcal{T}}x^T(\mathbf{X}^T\mathbf{X})^{-1}x\sigma^2\\
 & \text{First term follows from $y=x^T \beta + \epsilon$. We'll see how second term was derived in Chapter 3}.\\
 \end{align}
@@ -334,7 +334,69 @@ $$
 
 We have shown that in this context, expected $EPE$ increases linearly as a function of $p$. Wait, why does error increase with $p$? Isn't there supposed to be a sweet spot for $p$? Should we just use $p=1$ all the time?
 
-No, since for this contrived example, $p$ also affects the _true_ function $y=x^T\beta$, and we use the same $p$ for true function as well as modeling. Note in our previous analysis, curse of dimensionality makes the error increase exponentially with $p$. With the rigid lienar model, it only increases linearly. 
+No, since for this contrived example, $p$ also affects the _true_ function $y=x^T\beta$, and we use the same $p$ for true function as well as modeling. Note in our previous analysis, curse of dimensionality makes the error increase exponentially with $p$. With the rigid least squares model, it only increases linearly. 
+
+Also, while least squares model is unbiased in this setup because the true function is linear. It can be shown the least squares model can have bias when the function is something like $y=x^3$. **If true function is indeed linear, then we have removed the bias to zero, and hence reducing EPE. However, if the assumptions are wrong (i.e. the true function is far from linear) EPE of linear model can be dominated by the bias, to the extent that it's worse than nearest neighbor models**.  We'll learn a whole spectrum of models between the rigid linear models and the extremely flexible 1-nearest-neighbor models, each with their own assumptions and biases, which have been proposed specifically to avoid the exponential growth in complexity of functions in high dimensions by drawing heavily on these assumptions about any special structure that is known to exist.
+
+### Statistical models, Supervised learning and function approximation (2.6)
+
+This subchapter provides a high level narrative how to view the statistical modeling problem. Our goal is to find an approximation $\hat{f}(x)$ for $f(x)$.
+
+For most systems, $Y$ and $X$ do not have deterministic relationship. A simple way to model the non-deterministic relationship is through the _additive error model_.
+
+$$
+Y = f(X) + \epsilon
+$$
+
+In reality, there will be other unmeasured variables that also contribute to $Y$, including the _measurement error_. The additive error model assumes we can approximate all randomness via the error $\epsilon$.
+
+Note that problems with deterministic relationship exist. Many of classification problems studied in machine learning are of this form. The response surface can be thought of as a colored map defined in $\mathcal{R}^p$. The goal is to be able to color any point. Hence the function is deterministic, and the randomness enters through the x location of the training points. We will not talk about such problems right now.
+
+Assuming that $\epsilon$ has $E[\epsilon]=0$ and is independent of $X$, in this simple model, $Pr(Y \lvert X=x)$ is just a distribution centered at $f(x)$, with variance of $\sigma(\epsilon)$. However, we can make simple modifications to avoid the independence assumption. For example, we can have $Var(Y \lvert X=x) = \sigma(x)$, and replace whenever that term is used in closed form.
+
+#### Function approximation
+
+Machine learning has analogies to human learning (learning algorithm adjusts itself after iterations of example), and human brain (neural network). However, this book approaches the function-fitting paradigm using approaches taken in applied mathematics and statistics, which is via function approximation and estimations. In this paradigm, the data pairs $\( x_i, y_i\)$ are viewed as points in a (p+1)-dimensional Euclidean space. The function domain is $\mathcal{R}^p$, and the goal is to obtain an approximation to $f(x)$ for all $x$ in some region of $\mathcal{R}^p$. Treating supervised learning as a problem in function approximation encourages geometrical concepts of Euclidean spaces and mathematical concepts of probabilistic inference to be applied to the problem. 
+
+Many of the approximations we will encounter have associated a set of parameters $\theta$ that can be modified to be fit to the data. For the linear model, we get a simple closed form solution to the minimization problem with the RSS. Even if we are using _lienar basis expansions_ model (see 2.30), this will be true. However, if the basis functions have any hidden parameters, the solution requires either iterative methods or numerical optimization.
+
+RSS is just a special case criterion, and a more general principle for estimation would be using MLE, which minimizes the log-probability for the obsered samples.
+
+$$
+L(\theta) = \sum_{i=1}^N log Pr_{\theta}(y_i)
+$$
+
+For the additive error model, the solution for MLE would be the exact same solution for RSS, as both would have to minimize $\sum_{i-1}^N (y_i - f_{\theta}(x_i))^2$.
+
+As I thought about this more, I realized that linear regression is just (rigidly) assuming the conditional probability is $Pr_{\theta}(Y \lvert X=x) = \mathcal{N}(\theta^T x, \sigma(\epsilon))$, and tries to fit the MLE. A discriminative model tries to learn the $Pr(Y \lvert Y)$, so seems like we're just sticking to this for now.
+
+For qualitative cases, the log-likelihood would be summing over the multinomial likelihood
+
+$$
+L(\theta) = \sum_{i=1}^{N} log Pr(G=\mathcal{G}_k \lvert X=x_i)
+$$
+
+### Structured Regression Models (2.7)
+
+Consider we are fitting a function using the RSS criterion.
+
+$$
+RSS(\hat{f}) = \sum_{i=1}^{N} (y_i - \hat{f}(x_i))^2
+$$
+
+Minimizing the above leads to infinitely many solutions for $\hat{f}$. Any $\hat{f}$ that passes through all data points is a valid optimal solution! 
+
+We must restrict the eligible solutions to a smaller set of functions. These restrictions are sometimes encoded via the parametric representation of $f_{\theta}$, or may be built into the learning method itself, either implicitly or explicitly. These restricted classes of solutions are the major topic of this book.
+
+To be clear, any restrictions imposed on $\hat{f}$ that lead to unique solution do not remove the ambiguity caused by the multiplicity of solutions. There are infinitely many possible restrictions, so the ambiguity has simply transferred to the choice of constraint. 
+
+The constraints imposed by most learning tools usually imposes some kind of regular/homogeneous behavior in small neighborhoods of the input space. That means for all input points $x$ sufficiently close to each other in some metric, $\hat{f}$ exhibits some special structure such as constant, linear, or low-order polynomial behavior.
+
+The strength of the constraint is dictated by the neighborhood size. For example, local lienar fits in very large neighborhoods is almost a globally linear model, which is very restrictive.
+
+The book seems to be suggest that the concept of "constraint" is equivalent to the concept of "neighborhood". That means the constraint (neighborhood) depends on the metric used. Methods like kernel, local regression, and tree-based methods directly specify the metric and size of the neighborhood. Other methods like splines, neural networks, and basis-function methods implicitly define neighborhoods of local behavior.
+
+One fact does not change. Any tool that tries to small isotropic (Formal meaning: same value measured in different directions. In this context: treats all dimension as the same) neighborhood will face the curse of dimensionality. Conversely, all tools that overcome the dimensionality problem have an associated (implicit or adaptive) metric for measuring neighborhoods, which basically does not allow the neighborhood to be simultaneously small in all directions. 
 
 References
 * [Matrix differentiation][matrix-calculation] 
