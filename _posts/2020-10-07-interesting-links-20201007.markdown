@@ -1,0 +1,13 @@
+---
+layout: post
+title:  "Interesting links 20201007"
+date:   2020-10-07 00:08:00 +0900
+categories: jekyll update
+---
+
+[Fighting spam with Haskell - Facebook Engineering][one]
+
+[Introduction to Apache Spark with Scala][two]
+
+[one]: https://engineering.fb.com/security/fighting-spam-with-haskell/
+[two]: https://towardsdatascience.com/introduction-to-apache-spark-with-scala-ed31d8300fe4
