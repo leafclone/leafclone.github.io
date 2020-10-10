@@ -390,13 +390,80 @@ We must restrict the eligible solutions to a smaller set of functions. These res
 
 To be clear, any restrictions imposed on $\hat{f}$ that lead to unique solution do not remove the ambiguity caused by the multiplicity of solutions. There are infinitely many possible restrictions, so the ambiguity has simply transferred to the choice of constraint. 
 
-The constraints imposed by most learning tools usually imposes some kind of regular/homogeneous behavior in small neighborhoods of the input space. That means for all input points $x$ sufficiently close to each other in some metric, $\hat{f}$ exhibits some special structure such as constant, linear, or low-order polynomial behavior.
+The constraints imposed by most learning tools usually just limits compexity. They do this by restricting $\hat{f}$ to exhibit regular/homogeneous behavior (constant, linear, or low-order polynomial) in small neighborhoods of the input space (and hence making assumption that the real $f$ behaves such way as well). That means for all input points $x$ sufficiently close to each other in some metric, $\hat{f}$ exhibits some special structure such as constant, linear, or low-order polynomial behavior.
 
 The strength of the constraint is dictated by the neighborhood size. For example, local lienar fits in very large neighborhoods is almost a globally linear model, which is very restrictive.
 
-The book seems to be suggest that the concept of "constraint" is equivalent to the concept of "neighborhood". That means the constraint (neighborhood) depends on the metric used. Methods like kernel, local regression, and tree-based methods directly specify the metric and size of the neighborhood. Other methods like splines, neural networks, and basis-function methods implicitly define neighborhoods of local behavior.
+The book seems to be suggest that the concept of "constraint" is equivalent to the concept of "neighborhood". Since neighborhoods depend on the metric used, so do the constraints. Methods like kernel, local regression, and tree-based methods directly specify the metric and size of the neighborhood. Other methods like splines, neural networks, and basis-function methods implicitly define neighborhoods of local behavior.
 
-One fact does not change. Any tool that tries to small isotropic (Formal meaning: same value measured in different directions. In this context: treats all dimension as the same) neighborhood will face the curse of dimensionality. Conversely, all tools that overcome the dimensionality problem have an associated (implicit or adaptive) metric for measuring neighborhoods, which basically does not allow the neighborhood to be simultaneously small in all directions. 
+One fact does not change. Any tool that tries to use small isotropic (Formal meaning: same value measured in different directions. In this context: treats all dimension as the same) neighborhood will face the curse of dimensionality. Conversely, all tools that overcome the dimensionality problem have an associated (implicit or adaptive) metric for measuring neighborhoods, which basically does not allow the neighborhood to be simultaneously small in all directions. 
+
+### Classes of Restricted Estimators (2.8)
+
+This section gives introductory examples of [non-parametric regression][nonparam-regression] techniques, by grouping them into higher level classes. These classes depend on the nature of the restriction. These classes are not distinct, and some methods may fall in several classes. Each class has one or more parameters, sometimes called the _smoothing_ parameters, that controls the effective size of the local neighborhood. (As said above, this section synonymizes "constraint" and "neighborhood")
+
+#### 2.8.1 Roughness penalty
+
+This class of functions depend on the penalized RSS, or PRSS. Think of regularization
+
+$$
+PRSS(f; \lambda) = RSS(f) + \lambda J(f)
+$$
+
+Generally, you want $J(f)$ to be large for functions $f$ that vary too rapidly over small regions of input space. One specific example: If you solve/optimize the following PRSS goal function for one-dimensional input, the solution is the popular _cubic smoothing spline_.
+
+$$
+PRSS(f; \lambda) = \sum_{i=1}^{N} (y_i - f(x_i))^2 + \lambda \int [f''(x)]^2 dx
+$$
+
+Here, the roughness penalty controls large values of the second derivative of $f$. For $\lambda=0$, no penalty is imposed, and any interpolating function will do. For $\lambda = \infty$, only functions linear in $x$ are permitted.
+
+The penalty functions express our prior belief that the type of functions we seek exhibit a certain type of smooth behavior ([Why do people like smooth data?][smooth-data]), and can be cast in a Bayesian framework. Penalty $J$ corresponds to a log-prior, and minimizing PRSS amounts to finding the posterior mode.
+
+#### 2.8.2 Kernel Methods and Local Regression
+
+You can think of Kernel methods as explicitly providing estimates of regression function or conditional expectation. Simply put, you just specify the functional form of $\hat{f}$. You can do this by specifying 1. local neighborhood 2. class of regular functions (constant, linear, etc.) fitted in the local neighborhood.o
+
+Local neighborhood is specified by a _kernel function_ $K_{\lambda}(x_0, x)$ which assigns weights to an arbitrary point $x$ in a region around $x_0$. For example, the Gaussian kernel uses the Gaussian density function. (Note it uses the euclidean distance)
+
+$$
+K(x, x_0) = \frac{1}{\lambda} exp[ - \lvert\lvert x-x_0 \rvert\rvert ^2 / 2 \lambda ]
+$$
+
+THe simplest form of *estimate* of kernel methods is the Nadaraya-Watson weighted average. Note that this is agnostic of the kernel function.
+
+$$
+\hat{f}(x_0) = \sum_{i}^{N} K_{\lambda} (x_0, x_i) y_i \biggr/ \sum_{i}^{N} K_{\lambda} (x_0, x_i) 
+$$
+
+Now let's talk about goal functions. $f_{\theta}$ is some parameterized function that provides local regression estimates of $f$. Hence, the RSS contains pointwise $x_0$ as argument.
+
+$$
+RSS(f_{\theta}, x_0) = \sum_{i=1}^{N} K_{\lambda} (x_0, x_i) (y_i - f_{\theta}(x_i))^2
+$$
+
+If $f_{\theta}(x) = \theta_0$, we get Nadaraya-Watson estimate is the solution. If $f_{\theta}(x) = \theta_0 + \theta_1 x$, the solution is the popular local linear regression model
+
+The k-nearest neighbor method was just a kernel method where the kernel is 
+
+$$
+K_{k}(x, x_0) = I(\lvert\lvert x - x_0 \rvert\rvert \leq \lvert\lvert x_{(k)} - x_0 \rvert\rvert)
+$$
+
+We should be careful to modify these methods in high dimensions, to avoid the curse of dimensionality. Chapter 6 has more.
+
+#### 2.8.3 Basis Functions and Dictionary Methods
+
+Basis function methods. This section also calls it linear basis function method, adaptive basis function method, or dictionary method. 
+
+This class has the following form for the estimator
+
+$$
+f_{\theta}(x) = \sum_{m=1}^{M} \theta_m h_m (x)
+$$
+
+Polynomial splines methods and single layer feed forward neural network can be viewed to belong in this group.
+
 
 References
 * [Matrix differentiation][matrix-calculation] 
@@ -404,4 +471,5 @@ References
 
 [matrix-calculation]: {{ site.baseurl }}/pdfs/MatrixCalculus.pdf
 [law-of-total-variance]: https://math.stackexchange.com/questions/1742578/law-of-total-variance-intuition
-
+[nonparam-regression]: https://en.wikipedia.org/wiki/Nonparametric_regression
+[smooth-data]: https://stats.stackexchange.com/questions/110564/why-do-people-like-smooth-data
