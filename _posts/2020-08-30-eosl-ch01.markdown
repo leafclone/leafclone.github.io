@@ -253,11 +253,11 @@ Bias-variance decomposition is a decomposition of the mean squared error _given 
 
 $$
 \begin{align}
-MSE(x) &= E_{\mathcal{T}}[(\underbrace{y}_{\text{function of $x$}}-\underbrace{\hat{y}^2}_{\text{the fitted predictor is function of $\mathcal{T}$, and the prediction is function of $x$}}]  \\
+MSE(x) &= E_{\mathcal{T}}[(\underbrace{y}_{\text{function of $x$}}-\underbrace{\hat{y})^2}_{\text{the fitted predictor is function of $\mathcal{T}$, and the prediction is function of $x$}}]  \\
 &= E_{\mathcal{T}} [ (f-\hat{y})^2 ] \\
 &= E_{\mathcal{T}} [ f^2 - 2f\hat{y} + \hat{y}^2 ] \\
-&= f^2 - 2f E_{\mathcal{T}} [ \hat{y}^2 ] + E_{\mathcal{T}}[\hat{y}^2] \;\;\; \text{we already said $x$ is an input, and that $f(x)$ is deterministic. } \\
-&= f^2 - 2f E_{\mathcal{T}} [ \hat{y}^2 ] + \underbrace{E_{\mathcal{T}}[\hat{y}^2] - (E_{\mathcal{T}}[\hat{y}])^2}_{Var_{\mathcal{T}}(\hat{y})} + (E_{\mathcal{T}}[\hat{y}])^2\\
+&= f^2 - 2f E_{\mathcal{T}} [ \hat{y} ] + E_{\mathcal{T}}[\hat{y}^2] \;\;\; \text{we already said $x$ is an input, and that $f(x)$ is deterministic. } \\
+&= f^2 - 2f E_{\mathcal{T}} [ \hat{y} ] + \underbrace{E_{\mathcal{T}}[\hat{y}^2] - (E_{\mathcal{T}}[\hat{y}])^2}_{Var_{\mathcal{T}}(\hat{y})} + (E_{\mathcal{T}}[\hat{y}])^2\\
 &= Var_{\mathcal{T}}(\hat{y}) + (E_{\mathcal{T}}[\hat{y}]-f)^2 \;\;\; \text{trivial from above} \\
 &= Var_{\mathcal{T}}(\hat{y}) + Bias^2(\hat{y}) \;\;\;
 \end{align}
