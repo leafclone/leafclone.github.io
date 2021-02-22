@@ -53,7 +53,7 @@ class PolicyImplT {
 template <
   typename T,
   class Policy,
-  template <class> PolicyT // use template template parameters. We'll see why.
+  template <typename> class PolicyT // use template template parameters. We'll see why.
 >
 class WidgetManager : public Policy, PolcityT<T> // inherit to get access to data members
 {
